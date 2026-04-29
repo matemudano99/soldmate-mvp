@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "app/*": ["packages/app/*"]
+    },
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "esnext",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "lib": ["esnext", "dom"],
+    "noEmit": true
+  },
+  "exclude": ["node_modules", ".next", "out", "dist"]
+}

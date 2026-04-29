@@ -1,0 +1,59 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: soldmate-db
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-soldmate}
+    ports:
+      - "25432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - soldmate-net
+
+  backend:
+    build:
+      context: ./soldmate-backend
+    container_name: soldmate-backend
+    ports:
+      - "28080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://soldmate-db:5432/${DB_NAME:-soldmate}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER:-postgres}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-postgres}
+      - SOLDMATE_JWT_SECRET=${JWT_SECRET:-cambia-esto-por-una-clave-muy-larga-min-32-chars}
+      - SOLDMATE_SUPABASE_URL=${SUPABASE_URL}
+      - SOLDMATE_SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - soldmate-net
+
+  frontend:
+    build:
+      context: ./soldmate-frontend
+    container_name: soldmate-frontend
+    ports:
+      - "23000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://soldmate-backend:8080
+    depends_on:
+      - backend
+    networks:
+      - soldmate-net
+
+networks:
+  soldmate-net:
+    driver: bridge
+
+volumes:
+  postgres_data:

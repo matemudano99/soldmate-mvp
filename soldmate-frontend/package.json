@@ -1,0 +1,15 @@
+{
+  "name": "soldmate",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "web": "npm run dev -w soldmate-next",
+    "mobile": "npm run start -w soldmate-expo"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
