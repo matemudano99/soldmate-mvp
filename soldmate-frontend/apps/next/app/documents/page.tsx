@@ -6,6 +6,7 @@ import {
   Search, Download, Eye, MoreVertical, ChevronRight,
 } from "lucide-react";
 import { WebErpNavbar } from "../components/web-erp-navbar";
+import { UploadDocumentModal } from "../components/create-modals";
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
@@ -35,8 +36,6 @@ const DOCS: Doc[] = [
   { id: "D-010", name: "Acta reunión equipo Marzo",           category: "RRHH",       type: "other", size: "38 KB",  date: "05 Abr 2026", author: "Carlos R.", avatar: "https://i.pravatar.cc/24?img=3"  },
 ];
 
-const CATEGORIES = ["Todos", ...Array.from(new Set(DOCS.map((d) => d.category)))];
-
 const TYPE_META: Record<DocType, { Icon: React.ElementType; bg: string; text: string; ext: string }> = {
   pdf:   { Icon: FileText,        bg: "bg-red-50",    text: "text-red-500",   ext: "PDF"  },
   xlsx:  { Icon: FileSpreadsheet, bg: "bg-green-50",  text: "text-green-600", ext: "XLSX" },
@@ -53,11 +52,15 @@ const STORAGE_STATS = [
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function DocumentsPage() {
+  const [docs, setDocs] = useState(DOCS);
   const [activeCategory, setActiveCategory] = useState("Todos");
   const [search, setSearch] = useState("");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [showUpload, setShowUpload] = useState(false);
 
-  const filtered = DOCS.filter((d) => {
+  const categories = ["Todos", ...Array.from(new Set(docs.map((d) => d.category)))];
+
+  const filtered = docs.filter((d) => {
     const matchCat = activeCategory === "Todos" || d.category === activeCategory;
     const matchSearch = d.name.toLowerCase().includes(search.toLowerCase());
     return matchCat && matchSearch;
@@ -74,7 +77,7 @@ export default function DocumentsPage() {
             <h1 className="text-2xl font-bold text-[#1e2040]">Documentos</h1>
             <p className="text-sm text-gray-400 mt-0.5">Repositorio centralizado del negocio</p>
           </div>
-          <button className="flex items-center gap-2 bg-[#4f6ef7] text-white rounded-xl px-4 py-2.5 text-sm font-semibold shadow-[0_4px_15px_rgba(79,110,247,0.30)] hover:bg-[#3d5ae0] transition-all">
+          <button onClick={() => setShowUpload(true)} className="flex items-center gap-2 bg-[#4f6ef7] text-white rounded-xl px-4 py-2.5 text-sm font-semibold shadow-[0_4px_15px_rgba(79,110,247,0.30)] hover:bg-[#3d5ae0] transition-all">
             <Upload size={15} />
             Subir documento
           </button>
@@ -97,7 +100,7 @@ export default function DocumentsPage() {
           {/* Left: filters */}
           <div className="w-44 flex-shrink-0 space-y-1">
             <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-3 mb-2">Categorías</p>
-            {CATEGORIES.map((cat) => (
+            {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
@@ -113,7 +116,7 @@ export default function DocumentsPage() {
                   : <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
                       activeCategory === cat ? "bg-white/20 text-white" : "bg-gray-100 text-gray-400"
                     }`}>
-                      {cat === "Todos" ? DOCS.length : DOCS.filter((d) => d.category === cat).length}
+                      {cat === "Todos" ? docs.length : docs.filter((d) => d.category === cat).length}
                     </span>
                 }
               </button>
@@ -210,6 +213,28 @@ export default function DocumentsPage() {
           </div>
         </div>
       </main>
+      {showUpload && (
+        <UploadDocumentModal
+          onClose={() => setShowUpload(false)}
+          onCreate={(payload) => {
+            const now = new Date();
+            const date = now.toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" });
+            setDocs((prev) => [
+              {
+                id: `D-${String(prev.length + 1).padStart(3, "0")}`,
+                name: payload.name,
+                category: payload.category,
+                type: payload.type,
+                size: payload.size,
+                date,
+                author: "Tú",
+                avatar: "https://i.pravatar.cc/24?img=1",
+              },
+              ...prev,
+            ]);
+          }}
+        />
+      )}
     </div>
   );
 }

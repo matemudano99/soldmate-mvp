@@ -1,8 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import { Plus } from "lucide-react";
 import { SectionCard } from "../components/web-ui";
 import { WebErpNavbar } from "../components/web-erp-navbar";
+import { CreateCalendarTaskModal } from "../components/create-modals";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const EVENTS = [
@@ -13,15 +15,24 @@ const EVENTS = [
 ];
 
 export default function CalendarPage() {
+  const [events, setEvents] = useState(EVENTS);
+  const [showCreate, setShowCreate] = useState(false);
+
   return (
     <div className="flex min-h-screen bg-[#eef1f8]">
       <WebErpNavbar />
       <main className="flex-1 p-6 overflow-y-auto">
-        <h1 className="text-2xl font-bold text-[#1e2040] mb-5">Calendario</h1>
+        <div className="flex items-center justify-between mb-5">
+          <h1 className="text-2xl font-bold text-[#1e2040]">Calendario</h1>
+          <button onClick={() => setShowCreate(true)} className="inline-flex items-center gap-2 rounded-xl bg-[#4f6ef7] text-white px-4 py-2.5 text-sm font-semibold hover:bg-[#3d5ae0]">
+            <Plus size={14} />
+            Crear tarea
+          </button>
+        </div>
         <SectionCard title="Esta semana" subtitle="Mock data · frontend-first">
           <div className="grid grid-cols-7 gap-2">
             {DAYS.map((d) => {
-              const event = EVENTS.find((e) => e.day === d);
+              const event = events.find((e) => e.day === d);
               return (
                 <div key={d} className="flex flex-col gap-1.5">
                   <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider text-center">{d}</p>
@@ -38,6 +49,18 @@ export default function CalendarPage() {
             })}
           </div>
         </SectionCard>
+        {showCreate && (
+          <CreateCalendarTaskModal
+            onClose={() => setShowCreate(false)}
+            days={DAYS}
+            onCreate={(payload) =>
+              setEvents((prev) => [
+                ...prev,
+                { day: payload.day, title: payload.title, time: payload.time, color: "bg-blue-50 border-blue-200 text-blue-700" },
+              ])
+            }
+          />
+        )}
       </main>
     </div>
   );

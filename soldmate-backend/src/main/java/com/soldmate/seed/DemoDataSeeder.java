@@ -61,8 +61,8 @@ public class DemoDataSeeder implements CommandLineRunner {
             return;
         }
 
-        Company demoCompany = ensureCompany("B00000001", "La Terraza Demo", "ES");
-        User owner = ensureUser(demoCompany, "owner.demo@soldmate.local", "Paula", "Roman", User.Role.OWNER);
+        Company demoCompany = ensureCompany("B00000001", "La Terracita Demo", "ES");
+        User owner = ensureUser(demoCompany, "owner.demo@soldmate.local", "Mateo", "Mudano", User.Role.OWNER);
         User staff = ensureUser(demoCompany, "staff.demo@soldmate.local", "Mario", "Lopez", User.Role.STAFF);
 
         if (settingsService.getAllSettings(demoCompany.getId()).isEmpty()) {

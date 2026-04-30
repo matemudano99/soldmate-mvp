@@ -11,6 +11,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { WebErpNavbar } from "../components/web-erp-navbar";
 import { contactsApi, type ContactResponse, type ContactInput } from "app/lib/api";
 import { useAuthStore } from "app/lib/store";
+import { UserProfileMenu } from "../components/user-profile-menu";
+import { CreatePersonModal } from "../components/create-modals";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -629,10 +631,7 @@ function AddModal({
 
 export default function PeoplePage() {
   const token       = useAuthStore((s) => s.token);
-  const firstName   = useAuthStore((s) => s.firstName);
-  const lastName    = useAuthStore((s) => s.lastName);
   const queryClient = useQueryClient();
-  const initials = ((firstName?.[0] ?? "") + (lastName?.[0] ?? "")).toUpperCase() || "U";
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [search,     setSearch]     = useState("");
@@ -778,12 +777,7 @@ export default function PeoplePage() {
             )}
           </div>
           <div className="flex items-center gap-3 flex-shrink-0">
-            <div className="relative">
-              <div className="w-8 h-8 rounded-full ring-2 ring-white shadow-sm bg-[#4f6ef7] text-white text-[11px] font-semibold flex items-center justify-center">
-                {initials}
-              </div>
-              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-white" />
-            </div>
+            <UserProfileMenu />
           </div>
         </header>
 
@@ -936,7 +930,27 @@ export default function PeoplePage() {
       )}
 
       {/* Add Modal */}
-      {showModal && <AddModal onClose={() => setShowModal(false)} onAdd={addEmployee} />}
+      {showModal && (
+        <CreatePersonModal
+          onClose={() => setShowModal(false)}
+          departments={STATIC_DEPARTMENTS}
+          onCreate={(payload) =>
+            addEmployee({
+              name: payload.name,
+              email: payload.email,
+              role: payload.role,
+              department: payload.department,
+              progress: 0,
+              online: payload.online,
+              avatar: null,
+              phone: payload.phone,
+              location: payload.location,
+              projects: [],
+              joinDate: new Date().toLocaleDateString("es-ES", { month: "short", year: "numeric" }),
+            })
+          }
+        />
+      )}
     </div>
   );
 }

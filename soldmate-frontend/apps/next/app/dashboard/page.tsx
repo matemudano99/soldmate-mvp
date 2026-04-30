@@ -10,6 +10,7 @@ import {
 import { WebErpNavbar } from "../components/web-erp-navbar";
 import Link from "next/link";
 import { useAuthStore } from "app/lib/store";
+import { UserProfileMenu } from "../components/user-profile-menu";
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
@@ -94,7 +95,6 @@ export default function DashboardPage() {
   const todayCap = today.charAt(0).toUpperCase() + today.slice(1);
   const fullName = [firstName, lastName].filter(Boolean).join(" ").trim();
   const displayName = firstName || fullName || email?.split("@")[0] || "Usuario";
-  const initials = ((firstName?.[0] ?? "") + (lastName?.[0] ?? "")).toUpperCase() || "U";
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#eef1f8] text-[#1e2040]">
@@ -115,16 +115,15 @@ export default function DashboardPage() {
                 placeholder="Buscar..."
               />
             </div>
-            <button className="relative p-2.5 rounded-xl bg-white border border-gray-100 shadow-sm hover:bg-gray-50">
+            <Link
+              href="/alerts"
+              className="relative p-2.5 rounded-xl bg-white border border-gray-100 shadow-sm hover:bg-gray-50"
+              title="Ver alertas"
+            >
               <Bell size={16} className="text-gray-500" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
-            </button>
-            <div className="relative">
-              <div className="w-8 h-8 rounded-full ring-2 ring-white shadow-sm bg-[#4f6ef7] text-white text-[11px] font-semibold flex items-center justify-center">
-                {initials}
-              </div>
-              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-white" />
-            </div>
+            </Link>
+            <UserProfileMenu />
           </div>
         </header>
 

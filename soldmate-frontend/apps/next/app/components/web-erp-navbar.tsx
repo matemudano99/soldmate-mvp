@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, Users, CreditCard, BarChart2,
   FileText, Calendar, HelpCircle, Power, ChevronDown,
-  Sparkles, Wrench,
+  Sparkles, Wrench, Truck,
 } from "lucide-react";
 import { useAuthStore } from "app/lib/store";
 
@@ -14,6 +14,7 @@ const NAV_MAIN = [
   { href: "/dashboard",  label: "Dashboard",   Icon: LayoutDashboard },
   { href: "/people",     label: "People",       Icon: Users           },
   { href: "/incidents",  label: "Incidencias",  Icon: Wrench          },
+  { href: "/suppliers",  label: "Proveedores",  Icon: Truck           },
   { href: "/finances",   label: "Finances",     Icon: CreditCard      },
   { href: "/stats",      label: "Statistics",   Icon: BarChart2       },
   { href: "/documents",  label: "Documents",    Icon: FileText        },
@@ -45,13 +46,13 @@ export function WebErpNavbar() {
   return (
     <aside className="w-[220px] flex-shrink-0 bg-white h-screen flex flex-col border-r border-gray-100 shadow-[2px_0_20px_rgba(149,157,165,0.06)]">
       {/* Logo */}
-      <div className="px-5 pt-6 pb-5 flex items-center gap-2">
+      <Link href="/dashboard" className="px-5 pt-6 pb-5 flex items-center gap-2 hover:opacity-90 transition-opacity">
         <div className="w-9 h-9 bg-[#4f6ef7] rounded-xl flex items-center justify-center shadow-[0_4px_12px_rgba(79,110,247,0.35)]">
           <Sparkles size={17} color="white" />
         </div>
         <span className="font-bold text-[#1e2040] text-base tracking-tight">Soldmate</span>
         <ChevronDown size={12} className="text-gray-300 ml-auto" />
-      </div>
+      </Link>
 
       {/* Request for */}
       <div className="px-4 mb-5">
