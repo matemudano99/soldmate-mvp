@@ -67,7 +67,9 @@ public class AuthController {
         String email,
         String role,
         String tier,
-        Long   companyId
+        Long   companyId,
+        String firstName,
+        String lastName
     ) {}
 
     // ─── POST /api/v1/auth/register ──────────────────────────────────────────
@@ -119,7 +121,8 @@ public class AuthController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
             new AuthResponse(token, user.getEmail(), user.getRole().name(),
-                             company.getSubscriptionTier().name(), company.getId())
+                             company.getSubscriptionTier().name(), company.getId(),
+                             user.getFirstName(), user.getLastName())
         );
     }
 
@@ -146,7 +149,8 @@ public class AuthController {
 
         return ResponseEntity.ok(
             new AuthResponse(token, user.getEmail(), user.getRole().name(),
-                             company.getSubscriptionTier().name(), company.getId())
+                             company.getSubscriptionTier().name(), company.getId(),
+                             user.getFirstName(), user.getLastName())
         );
     }
 }

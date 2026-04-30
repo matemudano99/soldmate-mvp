@@ -18,6 +18,9 @@ export interface AuthResponse {
   email: string;
   role: "OWNER" | "STAFF";
   tier: "FREE" | "PREMIUM";
+  companyId: number;
+  firstName: string | null;
+  lastName: string | null;
 }
 
 export interface ProductResponse {

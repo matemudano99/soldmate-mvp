@@ -2,12 +2,13 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, Users, CreditCard, BarChart2,
   FileText, Calendar, HelpCircle, Power, ChevronDown,
-  Sparkles, Wrench, Bell,
+  Sparkles, Wrench,
 } from "lucide-react";
+import { useAuthStore } from "app/lib/store";
 
 const NAV_MAIN = [
   { href: "/dashboard",  label: "Dashboard",   Icon: LayoutDashboard },
@@ -21,6 +22,20 @@ const NAV_MAIN = [
 
 export function WebErpNavbar() {
   const pathname = usePathname() ?? "/";
+  const router = useRouter();
+  const logout = useAuthStore((s) => s.logout);
+  const firstName = useAuthStore((s) => s.firstName);
+  const lastName = useAuthStore((s) => s.lastName);
+  const email = useAuthStore((s) => s.email);
+  const role = useAuthStore((s) => s.role);
+
+  const fullName = [firstName, lastName].filter(Boolean).join(" ").trim();
+  const displayName = fullName || email || "Usuario";
+
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
+  };
 
   function isActive(href: string) {
     if (href === "/dashboard") return pathname === "/dashboard" || pathname === "/";
@@ -87,12 +102,18 @@ export function WebErpNavbar() {
         </Link>
 
         <div className="pt-3 flex items-center gap-2 px-3">
-          <button className="w-9 h-9 rounded-full border-2 border-gray-200 flex items-center justify-center text-gray-400 hover:border-red-200 hover:text-red-400 transition-colors">
+          <button
+            onClick={handleLogout}
+            title="Cerrar sesión"
+            className="w-9 h-9 rounded-full border-2 border-gray-200 flex items-center justify-center text-gray-400 hover:border-red-200 hover:text-red-400 transition-colors"
+          >
             <Power size={14} />
           </button>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-[#1e2040] truncate">Charles Merl</p>
-            <p className="text-[10px] text-gray-400">Owner</p>
+            <p className="text-xs font-semibold text-[#1e2040] truncate">{displayName}</p>
+            <p className="text-[10px] text-gray-400">
+              {role === "OWNER" ? "Owner" : "Staff"}
+            </p>
           </div>
         </div>
       </div>

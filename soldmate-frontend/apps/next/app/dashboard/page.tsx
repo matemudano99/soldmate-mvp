@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { WebErpNavbar } from "../components/web-erp-navbar";
 import Link from "next/link";
+import { useAuthStore } from "app/lib/store";
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
@@ -86,8 +87,14 @@ function CustomTooltip({ active, payload, label }: any) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
+  const firstName = useAuthStore((s) => s.firstName);
+  const lastName = useAuthStore((s) => s.lastName);
+  const email = useAuthStore((s) => s.email);
   const today = new Date().toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" });
   const todayCap = today.charAt(0).toUpperCase() + today.slice(1);
+  const fullName = [firstName, lastName].filter(Boolean).join(" ").trim();
+  const displayName = firstName || fullName || email?.split("@")[0] || "Usuario";
+  const initials = ((firstName?.[0] ?? "") + (lastName?.[0] ?? "")).toUpperCase() || "U";
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#eef1f8] text-[#1e2040]">
@@ -98,7 +105,7 @@ export default function DashboardPage() {
         <header className="flex-shrink-0 px-7 py-4 flex items-center justify-between gap-4">
           <div>
             <p className="text-xs text-gray-400">{todayCap}</p>
-            <h1 className="text-xl font-bold text-[#1e2040]">Bienvenido, Charles</h1>
+            <h1 className="text-xl font-bold text-[#1e2040]">Bienvenido, {displayName}</h1>
           </div>
           <div className="flex items-center gap-3">
             <div className="relative max-w-52 w-full hidden md:block">
@@ -113,7 +120,9 @@ export default function DashboardPage() {
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
             </button>
             <div className="relative">
-              <img src="https://i.pravatar.cc/32?img=3" alt="profile" className="w-8 h-8 rounded-full ring-2 ring-white shadow-sm" />
+              <div className="w-8 h-8 rounded-full ring-2 ring-white shadow-sm bg-[#4f6ef7] text-white text-[11px] font-semibold flex items-center justify-center">
+                {initials}
+              </div>
               <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-white" />
             </div>
           </div>

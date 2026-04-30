@@ -72,9 +72,11 @@ export const useAuthStore = create<AuthState>()(
     set({
       token: data.token,
       email: data.email,
-      role: data.role as "OWNER" | "STAFF",
-      tier: data.tier as "FREE" | "PREMIUM",
-      companyId: (data as any).companyId ?? null,
+      role: data.role,
+      tier: data.tier,
+      companyId: data.companyId ?? null,
+      firstName: data.firstName ?? null,
+      lastName: data.lastName ?? null,
       isAuthenticated: true,
       editMode: false,
     });
