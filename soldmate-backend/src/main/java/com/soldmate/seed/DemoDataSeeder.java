@@ -5,6 +5,8 @@ import com.soldmate.auth.UserRepository;
 import com.soldmate.company.Company;
 import com.soldmate.company.CompanyRepository;
 import com.soldmate.company.CompanySettingsService;
+import com.soldmate.crm.Contact;
+import com.soldmate.crm.ContactRepository;
 import com.soldmate.incidents.Incident;
 import com.soldmate.incidents.IncidentRepository;
 import com.soldmate.inventory.Product;
@@ -27,6 +29,7 @@ public class DemoDataSeeder implements CommandLineRunner {
     private final SupplierRepository supplierRepository;
     private final ProductRepository productRepository;
     private final IncidentRepository incidentRepository;
+    private final ContactRepository contactRepository;
     private final CompanySettingsService settingsService;
     private final PasswordEncoder passwordEncoder;
 
@@ -38,6 +41,7 @@ public class DemoDataSeeder implements CommandLineRunner {
                           SupplierRepository supplierRepository,
                           ProductRepository productRepository,
                           IncidentRepository incidentRepository,
+                          ContactRepository contactRepository,
                           CompanySettingsService settingsService,
                           PasswordEncoder passwordEncoder) {
         this.companyRepository = companyRepository;
@@ -45,6 +49,7 @@ public class DemoDataSeeder implements CommandLineRunner {
         this.supplierRepository = supplierRepository;
         this.productRepository = productRepository;
         this.incidentRepository = incidentRepository;
+        this.contactRepository = contactRepository;
         this.settingsService = settingsService;
         this.passwordEncoder = passwordEncoder;
     }
@@ -79,6 +84,38 @@ public class DemoDataSeeder implements CommandLineRunner {
             createIncident(demoCompany, staff, "Campana extractora con ruido", "Vibracion al arrancar en velocidad alta", Incident.Priority.MEDIUM, Incident.Status.IN_PROGRESS);
             createIncident(demoCompany, owner, "Mantenimiento preventivo horno", "Revision trimestral completada", Incident.Priority.LOW, Incident.Status.CLOSED);
         }
+
+        if (contactRepository.countByCompanyId(demoCompany.getId()) == 0) {
+            seedContacts(demoCompany);
+        }
+    }
+
+    private void seedContacts(Company company) {
+        createContact(company, "Henry Paulista",   "henry.p@mail.com",    "+34 612 001 001", "Senior Creative Director", "Design",    true,  100, "Jan 2020", 4.9, "https://i.pravatar.cc/150?img=11");
+        createContact(company, "Evan Jefferson",   "evan.j@mail.com",     "+34 612 001 002", "UI/UX Designer",            "Design",    true,   82, "Jun 2021", 4.7, "https://i.pravatar.cc/150?img=12");
+        createContact(company, "Laila Mohammed",   "laila.m@mail.com",    "+34 612 001 003", "Product Manager",           "Product",   true,   91, "Mar 2021", 4.8, "https://i.pravatar.cc/150?img=5");
+        createContact(company, "Jack Robertson",   "jack.r@mail.com",     "+34 612 001 004", "Junior Developer",          "Engineering",false, 45, "Sep 2023", 3.9, null);
+        createContact(company, "Sofia Reyes",      "sofia.r@mail.com",    "+34 612 001 005", "Marketing Lead",            "Marketing", true,   78, "Feb 2022", 4.5, "https://i.pravatar.cc/150?img=47");
+        createContact(company, "Carlos Mendoza",   "carlos.m@mail.com",   "+34 612 001 006", "Backend Engineer",          "Engineering",true,  95, "Nov 2020", 4.6, "https://i.pravatar.cc/150?img=15");
+    }
+
+    private void createContact(Company company, String fullName, String email, String phone,
+                                String role, String department, boolean active,
+                                int progress, String joinDate, double rating, String avatarUrl) {
+        Contact c = new Contact();
+        c.setCompany(company);
+        c.setFullName(fullName);
+        c.setEmail(email);
+        c.setPhone(phone);
+        c.setRole(role);
+        c.setDepartment(department);
+        c.setActive(active);
+        c.setProgress(progress);
+        c.setJoinDate(joinDate);
+        c.setRating(rating);
+        c.setAvatarUrl(avatarUrl);
+        c.setLocation("Madrid, ES");
+        contactRepository.save(c);
     }
 
     private Company ensureCompany(String taxId, String name, String country) {

@@ -61,6 +61,49 @@ export interface RegisterRequest {
   lastName: string;
 }
 
+// ─── Contactos CRM ──────────────────────────────────────────────────────────
+
+export interface ContactResponse {
+  id: number;
+  fullName: string;
+  email: string | null;
+  phone: string | null;
+  avatarUrl: string | null;
+  role: string | null;
+  department: string | null;
+  location: string | null;
+  progress: number;
+  active: boolean;
+  notes: string | null;
+  joinDate: string | null;
+  rating: number;
+  projects: string | null;
+  createdAt: string | null;
+}
+
+export interface ContactInput {
+  fullName: string;
+  email?: string | null;
+  phone?: string | null;
+  avatarUrl?: string | null;
+  role?: string | null;
+  department?: string | null;
+  location?: string | null;
+  progress?: number;
+  active?: boolean;
+  notes?: string | null;
+  joinDate?: string | null;
+  rating?: number;
+  projects?: string | null;
+}
+
+export interface ContactStats {
+  total: number;
+  active: number;
+  inactive: number;
+  avgProgress: number;
+}
+
 // ─── Helper: fetch autenticado ───────────────────────────────────────────────
 //
 // Esta función envuelve fetch y añade automáticamente el JWT al header.
@@ -162,6 +205,54 @@ export const inventoryApi = {
 
   remove: async (token: string, productId: number): Promise<void> => {
     const res = await authFetch(`/api/v1/inventory/${productId}`, token, { method: "DELETE" });
+    if (!res.ok && res.status !== 204) {
+      const text = await res.text();
+      throw new Error(text || `Error ${res.status}`);
+    }
+  },
+};
+
+// ─── Contactos CRM ───────────────────────────────────────────────────────────
+
+export const contactsApi = {
+  getAll: async (token: string): Promise<ContactResponse[]> => {
+    const res = await authFetch("/api/v1/contacts", token);
+    return handleResponse<ContactResponse[]>(res);
+  },
+
+  getStats: async (token: string): Promise<ContactStats> => {
+    const res = await authFetch("/api/v1/contacts/stats", token);
+    return handleResponse<ContactStats>(res);
+  },
+
+  getOne: async (token: string, id: number): Promise<ContactResponse> => {
+    const res = await authFetch(`/api/v1/contacts/${id}`, token);
+    return handleResponse<ContactResponse>(res);
+  },
+
+  create: async (token: string, data: ContactInput): Promise<ContactResponse> => {
+    const res = await authFetch("/api/v1/contacts", token, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+    return handleResponse<ContactResponse>(res);
+  },
+
+  update: async (token: string, id: number, data: ContactInput): Promise<ContactResponse> => {
+    const res = await authFetch(`/api/v1/contacts/${id}`, token, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+    return handleResponse<ContactResponse>(res);
+  },
+
+  toggleActive: async (token: string, id: number): Promise<ContactResponse> => {
+    const res = await authFetch(`/api/v1/contacts/${id}/active`, token, { method: "PATCH" });
+    return handleResponse<ContactResponse>(res);
+  },
+
+  remove: async (token: string, id: number): Promise<void> => {
+    const res = await authFetch(`/api/v1/contacts/${id}`, token, { method: "DELETE" });
     if (!res.ok && res.status !== 204) {
       const text = await res.text();
       throw new Error(text || `Error ${res.status}`);

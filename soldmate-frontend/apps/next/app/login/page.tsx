@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Sparkles, ArrowRight, Shield, Zap, BarChart2 } from "lucide-react";
+import { authApi } from "app/lib/api";
+import { useAuthStore } from "app/lib/store";
 
 const FEATURES = [
   { Icon: Shield,    text: "Gestión segura de inventario" },
@@ -11,19 +13,39 @@ const FEATURES = [
   { Icon: BarChart2, text: "Analítica operativa avanzada" },
 ];
 
+const DEMO_EMAIL    = "owner.demo@soldmate.local";
+const DEMO_PASSWORD = "Demo12345!";
+
 export default function LoginPage() {
-  const router = useRouter();
+  const router  = useRouter();
+  const storeLogin = useAuthStore((s) => s.login);
+
   const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
   const [showPwd,  setShowPwd]  = useState(false);
   const [loading,  setLoading]  = useState(false);
+  const [error,    setError]    = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const doLogin = async (e: string, p: string) => {
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 600));
-    router.push("/dashboard");
+    setError(null);
+    try {
+      const data = await authApi.login(e, p);
+      storeLogin(data);
+      router.push("/dashboard");
+    } catch (err: any) {
+      setError(err.message ?? "Error de conexión. ¿Está el servidor activo?");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleSubmit = (ev: React.FormEvent) => {
+    ev.preventDefault();
+    doLogin(email, password);
+  };
+
+  const handleDemoLogin = () => doLogin(DEMO_EMAIL, DEMO_PASSWORD);
 
   return (
     <div className="flex min-h-screen bg-white">
@@ -90,6 +112,12 @@ export default function LoginPage() {
 
           <h2 className="text-2xl font-bold text-[#1e2040] mb-1">Bienvenido de nuevo</h2>
           <p className="text-gray-400 text-sm mb-7">Accede a tu panel operativo</p>
+
+          {error && (
+            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-600">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -177,7 +205,16 @@ export default function LoginPage() {
             ))}
           </div>
 
-          <p className="mt-7 text-center text-xs text-gray-400">
+          <button
+            type="button"
+            onClick={handleDemoLogin}
+            disabled={loading}
+            className="mt-3 w-full rounded-xl border border-dashed border-[#4f6ef7]/40 bg-[#f0f3ff] py-2.5 text-xs font-medium text-[#4f6ef7] hover:bg-[#e8edff] transition-all disabled:opacity-60"
+          >
+            ⚡ Acceso demo — owner.demo@soldmate.local
+          </button>
+
+          <p className="mt-5 text-center text-xs text-gray-400">
             ¿No tienes cuenta?{" "}
             <Link href="/register" className="font-semibold text-[#4f6ef7] hover:text-[#3d5ae0]">
               Crea tu negocio gratis

@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Sparkles, ArrowRight, Check, Building2, User, Mail, Lock } from "lucide-react";
+import { authApi } from "app/lib/api";
+import { useAuthStore } from "app/lib/store";
 
 type Step = 1 | 2;
 
@@ -13,10 +15,13 @@ const STEP_LABELS: Record<Step, string> = {
 };
 
 export default function RegisterPage() {
-  const router = useRouter();
+  const router     = useRouter();
+  const storeLogin = useAuthStore((s) => s.login);
+
   const [step,    setStep]    = useState<Step>(1);
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error,   setError]   = useState<string | null>(null);
 
   const [form, setForm] = useState({
     companyName: "",
@@ -35,9 +40,30 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (step === 1) { setStep(2); return; }
+
+    if (form.password !== form.confirmPassword) {
+      setError("Las contraseñas no coinciden");
+      return;
+    }
+
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 700));
-    router.push("/dashboard");
+    setError(null);
+    try {
+      const data = await authApi.register({
+        companyName: form.companyName,
+        taxId:       form.taxId,
+        country:     form.country,
+        email:       form.email,
+        password:    form.password,
+        firstName:   form.firstName,
+        lastName:    form.lastName,
+      });
+      storeLogin(data);
+      router.push("/dashboard");
+    } catch (err: any) {
+      setError(err.message ?? "Error al crear la cuenta. Verifica los datos.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -137,6 +163,12 @@ export default function RegisterPage() {
               ? "Cuéntanos sobre tu negocio"
               : "Configura tus credenciales de acceso"}
           </p>
+
+          {error && (
+            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-600">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {step === 1 ? (

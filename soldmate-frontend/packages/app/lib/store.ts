@@ -19,6 +19,9 @@ interface AuthState {
   email: string | null;
   role: "OWNER" | "STAFF" | null;
   tier: "FREE" | "PREMIUM" | null;
+  companyId: number | null;
+  firstName: string | null;
+  lastName: string | null;
 
   // ¿El usuario está autenticado?
   isAuthenticated: boolean;
@@ -34,6 +37,20 @@ interface AuthState {
 
 // ─── Store ───────────────────────────────────────────────────────────────────
 
+// ─── Helpers para cookies (accesibles por el middleware de Next.js) ──────────
+
+function setCookie(name: string, value: string, maxAgeSec = 86400) {
+  if (typeof document === "undefined") return;
+  document.cookie = `${name}=${value}; path=/; max-age=${maxAgeSec}; SameSite=Strict`;
+}
+
+function deleteCookie(name: string) {
+  if (typeof document === "undefined") return;
+  document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+}
+
+// ─── Store ───────────────────────────────────────────────────────────────────
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
@@ -42,30 +59,42 @@ export const useAuthStore = create<AuthState>()(
   email: null,
   role: null,
   tier: null,
+  companyId: null,
+  firstName: null,
+  lastName: null,
   isAuthenticated: false,
   editMode: false,
 
   // Acción login: guarda los datos del usuario tras el login/registro
-  login: (data: AuthResponse) =>
+  login: (data: AuthResponse) => {
+    // Cookie para el middleware de Next.js (no accesible por JS después de login)
+    setCookie("sm_token", data.token, 86400);
     set({
       token: data.token,
       email: data.email,
-      role: data.role,
-      tier: data.tier,
+      role: data.role as "OWNER" | "STAFF",
+      tier: data.tier as "FREE" | "PREMIUM",
+      companyId: (data as any).companyId ?? null,
       isAuthenticated: true,
       editMode: false,
-    }),
+    });
+  },
 
   // Acción logout: limpia todos los datos del usuario
-  logout: () =>
+  logout: () => {
+    deleteCookie("sm_token");
     set({
       token: null,
       email: null,
       role: null,
       tier: null,
+      companyId: null,
+      firstName: null,
+      lastName: null,
       isAuthenticated: false,
       editMode: false,
-    }),
+    });
+  },
   toggleEditMode: () =>
     set((s) => ({
       editMode: !s.editMode,
