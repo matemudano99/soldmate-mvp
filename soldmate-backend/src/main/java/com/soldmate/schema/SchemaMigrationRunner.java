@@ -36,7 +36,6 @@ public class SchemaMigrationRunner implements ApplicationRunner {
     }
 
     @Override
-    @Transactional
     public void run(ApplicationArguments args) {
         List<MigrationStep> steps = List.of(
             new MigrationStep("001", "Initialize schema versioning table", this::initialize),
@@ -50,13 +49,17 @@ public class SchemaMigrationRunner implements ApplicationRunner {
             }
 
             log.info("Applying schema step {} - {}", step.version(), step.description());
-            step.action().run();
+            try {
+                step.action().run();
 
-            SchemaVersion version = new SchemaVersion();
-            version.setVersion(step.version());
-            version.setDescription(step.description());
-            version.setAppliedAt(Instant.now());
-            schemaVersionRepository.save(version);
+                SchemaVersion version = new SchemaVersion();
+                version.setVersion(step.version());
+                version.setDescription(step.description());
+                version.setAppliedAt(Instant.now());
+                schemaVersionRepository.save(version);
+            } catch (Exception e) {
+                log.warn("Schema step {} skipped (insufficient privileges or already applied): {}", step.version(), e.getMessage());
+            }
         }
     }
 

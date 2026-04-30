@@ -1,5 +1,10 @@
 import { withExpo } from "@expo/next-adapter";
 
+// En GitHub Actions se pone GITHUB_PAGES=true para generar archivos estáticos.
+// En Docker / desarrollo local se usa el modo 'standalone' (servidor Node).
+const isGithubPages = process.env.GITHUB_PAGES === "true";
+const repoName = "soldmate-mvp"; // nombre del repositorio en GitHub
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Transpile packages that use React Native
@@ -16,7 +21,20 @@ const nextConfig = {
     "react-native-svg",
     "@react-native/assets-registry",
   ],
-  output: "standalone",
+
+  // 'export'     → HTML + CSS + JS estáticos (GitHub Pages)
+  // 'standalone' → Servidor Node optimizado (Docker)
+  output: isGithubPages ? "export" : "standalone",
+
+  // GitHub Pages sirve desde /soldmate-mvp/ (nombre del repo)
+  basePath: isGithubPages ? `/${repoName}` : "",
+  assetPrefix: isGithubPages ? `/${repoName}/` : "",
+
+  // next/image necesita un servidor para optimizar; en modo estático desactivamos la optimización
+  images: {
+    unoptimized: isGithubPages,
+  },
+
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -24,8 +42,6 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   webpack: (config) => {
-    // In web builds, map native icons package to the web package.
-    // This avoids pulling react-native-svg assets code that breaks Next parsing in Docker.
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
       "lucide-react-native": "lucide-react",
