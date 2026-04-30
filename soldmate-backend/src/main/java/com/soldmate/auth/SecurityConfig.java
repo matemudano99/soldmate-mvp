@@ -92,12 +92,13 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
-            "http://localhost:3000",   // Next.js
-            "http://localhost:23000",  // Frontend Docker published port
-            "http://localhost:8082",  // Expo web (metrobundler)
-            "http://localhost:8081",  // Expo web fallback
-            "http://localhost:19006",  // Expo web
-            "exp://localhost:19000"    // Expo mobile
+            "http://localhost:3000",                      // Next.js dev
+            "http://localhost:23000",                     // Frontend Docker
+            "http://localhost:8082",                      // Expo web
+            "http://localhost:8081",                      // Expo web fallback
+            "http://localhost:19006",                     // Expo web
+            "exp://localhost:19000",                      // Expo mobile
+            "https://matemudano99.github.io"              // GitHub Pages (producción)
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
