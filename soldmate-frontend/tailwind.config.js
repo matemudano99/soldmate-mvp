@@ -40,6 +40,19 @@ module.exports = {
           700: "#b45309",
           900: "#78350f",
         },
+        // Paleta pastel derivada del turquesa (para UI tipo glassmorphism)
+        turq: {
+          50:  "#ecfeff",
+          100: "#cffafe",
+          200: "#a5f3fc",
+          300: "#67e8f9",
+          400: "#22d3ee",
+          500: "#06b6d4",
+          600: "#0891b2",
+          700: "#0e7490",
+          800: "#155e75",
+          900: "#134e4a",
+        },
       },
 
       // ── Fuentes ──

@@ -93,6 +93,9 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
             "http://localhost:3000",   // Next.js
+            "http://localhost:23000",  // Frontend Docker published port
+            "http://localhost:8082",  // Expo web (metrobundler)
+            "http://localhost:8081",  // Expo web fallback
             "http://localhost:19006",  // Expo web
             "exp://localhost:19000"    // Expo mobile
         ));

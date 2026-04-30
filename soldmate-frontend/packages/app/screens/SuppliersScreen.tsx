@@ -12,12 +12,14 @@ import {
 import { useRouter } from "../lib/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  ArrowLeft, Plus, Phone, Mail, Tag, Trash2, User, X,
+  Plus, Phone, Mail, Tag, Trash2, User, X,
 } from "lucide-react-native";
 import { useAuthStore } from "../lib/store";
 import { SkeletonLoader, ErrorState, EmptyState, Button } from "../components/ui";
+import { ModuleNavbar } from "../components/ModuleNavbar";
+import { MobileTopBar } from "../components/MobileTopBar";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:28080";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -270,25 +272,21 @@ export function SuppliersScreen() {
     <View className="flex-1 bg-slate-950">
 
       {/* ── Header ── */}
-      <View className="flex-row items-center gap-3 px-4 pt-14 pb-4 border-b border-slate-800">
-        <TouchableOpacity onPress={() => router.back()} className="bg-slate-800 rounded-xl p-2.5">
-          <ArrowLeft size={20} color="#94a3b8" />
-        </TouchableOpacity>
-        <View className="flex-1">
-          <Text className="text-white font-bold text-xl">Proveedores</Text>
-          <Text className="text-slate-400 text-xs">
-            {query.data?.length ?? 0} proveedores activos
-          </Text>
-        </View>
-        {role === "OWNER" && (
+      <MobileTopBar
+        title="Proveedores"
+        subtitle={`${query.data?.length ?? 0} proveedores activos`}
+        onBack={() => router.back()}
+      />
+      {role === "OWNER" && (
+        <View className="px-4 pt-2 pb-3 border-b border-slate-800 items-end">
           <TouchableOpacity
             onPress={() => setShowModal(true)}
             className="bg-amber-500 rounded-xl p-2.5"
           >
             <Plus size={20} color="white" />
           </TouchableOpacity>
-        )}
-      </View>
+        </View>
+      )}
 
       {/* ── Lista ── */}
       {query.isLoading ? (
@@ -311,7 +309,7 @@ export function SuppliersScreen() {
       ) : (
         <ScrollView
           className="flex-1"
-          contentContainerClassName="p-4 gap-3 pb-10"
+          contentContainerClassName="p-4 gap-3 pb-28"
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
@@ -341,6 +339,8 @@ export function SuppliersScreen() {
         }}
         isLoading={createMut.isPending}
       />
+
+      <ModuleNavbar active="suppliers" />
     </View>
   );
 }

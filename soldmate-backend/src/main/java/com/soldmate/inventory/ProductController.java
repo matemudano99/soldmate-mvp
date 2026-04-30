@@ -114,6 +114,45 @@ public class ProductController {
         return ResponseEntity.ok(ProductResponse.from(productRepository.save(product)));
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('OWNER')")
+    public ResponseEntity<ProductResponse> updateProduct(
+        @RequestHeader("Authorization") String authHeader,
+        @PathVariable Long id,
+        @Valid @RequestBody CreateProductRequest req
+    ) {
+        Long companyId = extractCompanyId(authHeader);
+        Product product = productRepository.findByIdAndCompanyId(id, companyId).orElse(null);
+        if (product == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        product.setName(req.name().trim());
+        product.setCurrentStock(req.currentStock());
+        product.setMinStock(req.minStock());
+        product.setUnit(req.unit());
+        product.setCategory(req.category());
+        product.setVatRate(req.vatRate() != null ? req.vatRate() : product.getVatRate());
+
+        return ResponseEntity.ok(ProductResponse.from(productRepository.save(product)));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('OWNER')")
+    public ResponseEntity<Void> deleteProduct(
+        @RequestHeader("Authorization") String authHeader,
+        @PathVariable Long id
+    ) {
+        Long companyId = extractCompanyId(authHeader);
+        Product product = productRepository.findByIdAndCompanyId(id, companyId).orElse(null);
+        if (product == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        productRepository.delete(product);
+        return ResponseEntity.noContent().build();
+    }
+
     private Long extractCompanyId(String authHeader) {
         return jwtUtil.extractCompanyId(authHeader.substring(7));
     }

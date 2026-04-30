@@ -3,7 +3,7 @@
 // Extensión de api.ts para el módulo de configuración.
 // Separamos en un archivo propio para no crecer api.ts indefinidamente.
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:28080";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 

@@ -27,11 +27,13 @@ import {
 import { useRouter } from "../lib/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  ArrowLeft, Plus, Pencil, Trash2, Percent, Tag, ClipboardList, X, Check,
+  Plus, Pencil, Trash2, Percent, Tag, ClipboardList, X, Check,
 } from "lucide-react-native";
 import { useAuthStore } from "../lib/store";
-import { settingsApi, type SettingResponse, type SettingGroup } from "../lib/apiSettings";
+import { settingsApi, type SettingResponse } from "../lib/apiSettings";
 import { SkeletonLoader, ErrorState } from "../components/ui";
+import { ModuleNavbar } from "../components/ModuleNavbar";
+import { MobileTopBar } from "../components/MobileTopBar";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -323,15 +325,11 @@ export function CompanySettingsScreen() {
     <View className="flex-1 bg-slate-950">
 
       {/* ── Header ── */}
-      <View className="flex-row items-center gap-3 px-4 pt-14 pb-4 border-b border-slate-800">
-        <TouchableOpacity onPress={() => router.back()} className="bg-slate-800 rounded-xl p-2.5">
-          <ArrowLeft size={20} color="#94a3b8" />
-        </TouchableOpacity>
-        <View className="flex-1">
-          <Text className="text-white font-bold text-xl">Configuración</Text>
-          <Text className="text-slate-400 text-xs">IVA · Categorías · Estados de pedido</Text>
-        </View>
-      </View>
+      <MobileTopBar
+        title="Configuración"
+        subtitle="IVA · Categorías · Estados de pedido"
+        onBack={() => router.back()}
+      />
 
       {/* ── Tabs ── */}
       <View className="flex-row border-b border-slate-800">
@@ -367,7 +365,7 @@ export function CompanySettingsScreen() {
         />
       ) : (
         <>
-          <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+          <ScrollView className="flex-1" showsVerticalScrollIndicator={false} contentContainerClassName="pb-28">
 
             {/* Información del grupo activo */}
             <View className="px-4 py-3">
@@ -441,6 +439,8 @@ export function CompanySettingsScreen() {
         onCreate={(data) => createMut.mutate(data)}
         isLoading={createMut.isPending}
       />
+
+      <ModuleNavbar active="settings" />
     </View>
   );
 }

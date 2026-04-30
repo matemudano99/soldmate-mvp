@@ -22,10 +22,14 @@ interface AuthState {
 
   // ¿El usuario está autenticado?
   isAuthenticated: boolean;
+  // Modo edición global para módulos ERP (toggle desde navbar)
+  editMode: boolean;
 
   // Acciones (funciones que modifican el estado)
   login: (data: AuthResponse) => void;
   logout: () => void;
+  toggleEditMode: () => void;
+  setEditMode: (value: boolean) => void;
 }
 
 // ─── Store ───────────────────────────────────────────────────────────────────
@@ -39,6 +43,7 @@ export const useAuthStore = create<AuthState>()(
   role: null,
   tier: null,
   isAuthenticated: false,
+  editMode: false,
 
   // Acción login: guarda los datos del usuario tras el login/registro
   login: (data: AuthResponse) =>
@@ -48,6 +53,7 @@ export const useAuthStore = create<AuthState>()(
       role: data.role,
       tier: data.tier,
       isAuthenticated: true,
+      editMode: false,
     }),
 
   // Acción logout: limpia todos los datos del usuario
@@ -58,6 +64,15 @@ export const useAuthStore = create<AuthState>()(
       role: null,
       tier: null,
       isAuthenticated: false,
+      editMode: false,
+    }),
+  toggleEditMode: () =>
+    set((s) => ({
+      editMode: !s.editMode,
+    })),
+  setEditMode: (value: boolean) =>
+    set({
+      editMode: value,
     }),
     }),
     {

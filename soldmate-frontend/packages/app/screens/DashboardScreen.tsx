@@ -32,6 +32,8 @@ import {
   SectionHeader,
   Button,
 } from "../components/ui";
+import { ModuleNavbar } from "../components/ModuleNavbar";
+import { MobileTopBar } from "../components/MobileTopBar";
 import type { ProductResponse } from "../lib/api";
 
 // ─── KPI Card ─────────────────────────────────────────────────────────────────
@@ -83,6 +85,7 @@ interface ProductRowProps {
 }
 
 function ProductRow({ product, onUpdateStock }: ProductRowProps) {
+  const editMode = useAuthStore((s) => s.editMode);
   return (
     <View
       className={`
@@ -111,12 +114,14 @@ function ProductRow({ product, onUpdateStock }: ProductRowProps) {
           unit={product.unit}
         />
         {/* Botón para actualizar stock rápidamente desde mobile */}
-        <TouchableOpacity
-          onPress={() => onUpdateStock(product)}
-          className="bg-slate-700 rounded-lg p-2"
-        >
-          <Plus size={14} color="#94a3b8" />
-        </TouchableOpacity>
+        {editMode && (
+          <TouchableOpacity
+            onPress={() => onUpdateStock(product)}
+            className="bg-slate-700 rounded-lg p-2"
+          >
+            <Plus size={14} color="#94a3b8" />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -199,7 +204,7 @@ function UpdateStockModal({ product, onClose, onConfirm, isLoading }: UpdateStoc
 
 export function DashboardScreen() {
   const router   = useRouter();
-  const { email, role, tier, logout } = useAuthStore();
+  const { email, role, tier, logout, editMode } = useAuthStore();
   const { products, lowStockProducts, isLoading, isError, error, refetch } = useInventory();
 
   // Estado para el modal de actualización de stock
@@ -249,32 +254,27 @@ export function DashboardScreen() {
     <View className="flex-1 bg-slate-950">
 
       {/* ── Header ── */}
-      <View className="px-4 pt-14 pb-4 flex-row items-center justify-between border-b border-slate-800">
-        <View>
-          <Text className="text-amber-400 text-xs font-semibold uppercase tracking-widest">
-            Soldmate {tier === "PREMIUM" ? "· Premium" : ""}
+      <MobileTopBar
+        title="Dashboard"
+        subtitle={`Soldmate ${tier === "PREMIUM" ? "· Premium" : ""}`}
+        showProgress
+      />
+      <View className="px-4 pt-2 pb-3 flex-row justify-end">
+        <TouchableOpacity
+          onPress={handleLogout}
+          className="bg-slate-800 rounded-xl px-3 py-2 flex-row items-center gap-2"
+        >
+          <Text className="text-slate-300 text-xs font-medium">
+            {role === "OWNER" ? "Dueño" : "Staff"}
           </Text>
-          <Text className="text-white text-xl font-bold">Dashboard</Text>
-        </View>
-        <View className="flex-row items-center gap-3">
-          {/* Indicador de rol */}
-          <View className="bg-slate-800 rounded-full px-3 py-1">
-            <Text className="text-slate-300 text-xs font-medium">
-              {role === "OWNER" ? "Dueño" : "Staff"}
-            </Text>
-          </View>
-          <TouchableOpacity
-            onPress={handleLogout}
-            className="bg-slate-800 rounded-xl p-2.5"
-          >
-            <LogOut size={18} color="#94a3b8" />
-          </TouchableOpacity>
-        </View>
+          <LogOut size={16} color="#94a3b8" />
+        </TouchableOpacity>
       </View>
 
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
+        contentContainerClassName="pb-28"
         refreshControl={
           // Pull-to-refresh: desliza hacia abajo para recargar los datos
           <RefreshControl
@@ -315,7 +315,7 @@ export function DashboardScreen() {
             {lowStockProducts.map((p) => (
               <TouchableOpacity
                 key={p.id}
-                onPress={() => setSelectedProduct(p)}
+                onPress={() => editMode && setSelectedProduct(p)}
                 className="flex-row items-center justify-between px-4 py-3 border-b border-red-900/20 last:border-b-0"
               >
                 <Text className="text-slate-200 text-sm">{p.name}</Text>
@@ -334,7 +334,10 @@ export function DashboardScreen() {
         <View className="mx-4 mb-3">
           <TouchableOpacity
             onPress={() => router.push("/incidents/new")}
-            className="bg-slate-800 border border-slate-700 rounded-2xl px-4 py-4 flex-row items-center justify-between"
+            className={`border rounded-2xl px-4 py-4 flex-row items-center justify-between ${
+              editMode ? "bg-slate-800 border-slate-700" : "bg-slate-900/40 border-slate-800 opacity-70"
+            }`}
+            disabled={!editMode}
           >
             <View className="flex-row items-center gap-3">
               <View className="bg-amber-500/20 rounded-xl p-2">
@@ -357,7 +360,8 @@ export function DashboardScreen() {
             role === "OWNER" ? (
               <TouchableOpacity
                 onPress={() => router.push("/inventory/new")}
-                className="bg-amber-500 rounded-xl px-3 py-2 flex-row items-center gap-1"
+                className={`rounded-xl px-3 py-2 flex-row items-center gap-1 ${editMode ? "bg-amber-500" : "bg-slate-700"}`}
+                disabled={!editMode}
               >
                 <Plus size={14} color="white" />
                 <Text className="text-white text-xs font-semibold">Añadir</Text>
@@ -385,6 +389,8 @@ export function DashboardScreen() {
         )}
 
       </ScrollView>
+
+      <ModuleNavbar active="dashboard" />
 
       {/* ── Modal de actualización de stock ── */}
       <UpdateStockModal

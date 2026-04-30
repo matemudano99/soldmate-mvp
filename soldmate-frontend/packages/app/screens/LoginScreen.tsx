@@ -22,7 +22,7 @@ import {
 import { useRouter } from "../lib/router";
 import { authApi } from "../lib/api";
 import { useAuthStore } from "../lib/store";
-import { Input, Button } from "../components/ui";
+import { Input, Button, GlassSurface } from "../components/ui";
 
 export function LoginScreen() {
   const router = useRouter();
@@ -79,11 +79,11 @@ export function LoginScreen() {
         contentContainerClassName="flex-grow justify-center"
         keyboardShouldPersistTaps="handled"
       >
-        <View className="px-6 py-12 max-w-md w-full mx-auto gap-8">
+        <GlassSurface className="px-6 py-12 max-w-md w-full mx-auto gap-8">
 
           {/* ── Logo y título ── */}
           <View className="items-center gap-2">
-            <View className="w-16 h-16 bg-amber-500 rounded-2xl items-center justify-center mb-2">
+            <View className="w-16 h-16 bg-turq-400/20 border border-turq-300/30 rounded-2xl items-center justify-center mb-2">
               <Text className="text-3xl">🍽️</Text>
             </View>
             <Text className="text-white text-3xl font-bold tracking-tight">
@@ -114,7 +114,7 @@ export function LoginScreen() {
 
             {/* Mensaje de error global del formulario */}
             {error && (
-              <View className="bg-red-950 border border-red-800 rounded-xl px-4 py-3">
+              <View className="bg-red-500/10 border border-red-400/25 rounded-xl px-4 py-3">
                 <Text className="text-red-400 text-sm">{error}</Text>
               </View>
             )}
@@ -134,7 +134,7 @@ export function LoginScreen() {
             </TouchableOpacity>
           </View>
 
-        </View>
+        </GlassSurface>
       </ScrollView>
     </KeyboardAvoidingView>
   );

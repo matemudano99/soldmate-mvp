@@ -9,6 +9,8 @@
 import React from "react";
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from "react-native";
 
+export { GlassSurface, GlassCard } from "./GlassSurface";
+
 // ─── StockBadge ──────────────────────────────────────────────────────────────
 // Muestra una etiqueta de color según el nivel de stock.
 
@@ -21,10 +23,12 @@ interface StockBadgeProps {
 export function StockBadge({ lowStock, currentStock, unit }: StockBadgeProps) {
   // Colores: rojo para stock bajo, verde para stock normal
   const badgeClass = lowStock
-    ? "bg-red-100 border border-red-300"
-    : "bg-emerald-100 border border-emerald-300";
+    ? "bg-red-500/10 border border-red-500/30"
+    : "bg-turq-500/10 border border-turq-400/30";
 
-  const textClass = lowStock ? "text-red-700 font-semibold" : "text-emerald-700 font-semibold";
+  const textClass = lowStock
+    ? "text-red-300 font-semibold"
+    : "text-turq-300 font-semibold";
 
   return (
     <View className={`px-3 py-1 rounded-full ${badgeClass}`}>
@@ -43,10 +47,10 @@ interface PriorityBadgeProps {
 }
 
 const PRIORITY_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  LOW:      { bg: "bg-slate-100 border border-slate-300", text: "text-slate-600",   label: "Baja" },
-  MEDIUM:   { bg: "bg-amber-100 border border-amber-300", text: "text-amber-700",   label: "Media" },
-  HIGH:     { bg: "bg-orange-100 border border-orange-300", text: "text-orange-700", label: "Alta" },
-  CRITICAL: { bg: "bg-red-100 border border-red-300",     text: "text-red-700 font-bold", label: "Crítica" },
+  LOW:      { bg: "bg-slate-500/10 border border-slate-400/20", text: "text-slate-200", label: "Baja" },
+  MEDIUM:   { bg: "bg-turq-400/10 border border-turq-300/25",   text: "text-turq-200",   label: "Media" },
+  HIGH:     { bg: "bg-amber-400/10 border border-amber-300/25", text: "text-amber-200",  label: "Alta" },
+  CRITICAL: { bg: "bg-red-500/10 border border-red-400/25",    text: "text-red-200 font-bold", label: "Crítica" },
 };
 
 export function PriorityBadge({ priority }: PriorityBadgeProps) {
@@ -71,9 +75,9 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_STYLES: Record<string, string> = {
-  OPEN:        "bg-red-50 border border-red-200 text-red-600",
-  IN_PROGRESS: "bg-amber-50 border border-amber-200 text-amber-600",
-  CLOSED:      "bg-slate-50 border border-slate-200 text-slate-500",
+  OPEN:        "bg-red-500/10 border border-red-400/25 text-red-200",
+  IN_PROGRESS: "bg-turq-500/10 border border-turq-400/25 text-turq-200",
+  CLOSED:      "bg-slate-500/10 border border-slate-400/20 text-slate-200",
 };
 
 export function StatusBadge({ status }: StatusBadgeProps) {
@@ -104,9 +108,9 @@ export function Button({
   disabled = false,
 }: ButtonProps) {
   const variants = {
-    primary:   "bg-amber-500 active:bg-amber-600",
-    secondary: "bg-slate-800 active:bg-slate-700",
-    danger:    "bg-red-500 active:bg-red-600",
+    primary:   "bg-turq-500/90 border border-turq-400/40 active:bg-turq-600/90",
+    secondary: "bg-white/5 border border-white/10 active:bg-white/10",
+    danger:    "bg-red-500/90 border border-red-400/40 active:bg-red-600/90",
   };
 
   const isDisabled = disabled || loading;
@@ -172,9 +176,9 @@ export function Input({
         multiline={multiline}
         numberOfLines={numberOfLines}
         className={`
-          bg-slate-800 border rounded-xl px-4 py-3.5
+          bg-white/5 border rounded-xl px-4 py-3.5
           text-white text-base
-          ${error ? "border-red-500" : "border-slate-600"}
+          ${error ? "border-red-500/60" : "border-white/10"}
           ${multiline ? "min-h-[100px] text-top" : ""}
         `}
       />
@@ -199,7 +203,7 @@ export function SkeletonLoader({ lines = 3 }: SkeletonProps) {
       {Array.from({ length: lines }).map((_, i) => (
         <View
           key={i}
-          className="h-16 bg-slate-800 rounded-xl animate-pulse"
+          className="h-16 bg-white/10 rounded-xl animate-pulse"
           style={{ opacity: 1 - i * 0.2 }} // cada línea es más tenue
         />
       ))}
@@ -217,7 +221,7 @@ interface ErrorStateProps {
 
 export function ErrorState({ message, onRetry }: ErrorStateProps) {
   return (
-    <View className="flex-1 items-center justify-center gap-4 p-8">
+    <GlassSurface className="flex-1 items-center justify-center gap-4 p-8">
       <Text className="text-4xl">⚠️</Text>
       <Text className="text-slate-300 text-center text-base">{message}</Text>
       {onRetry && (
@@ -225,7 +229,7 @@ export function ErrorState({ message, onRetry }: ErrorStateProps) {
           Reintentar
         </Button>
       )}
-    </View>
+    </GlassSurface>
   );
 }
 
@@ -239,13 +243,13 @@ interface EmptyStateProps {
 
 export function EmptyState({ icon, title, subtitle }: EmptyStateProps) {
   return (
-    <View className="flex-1 items-center justify-center gap-3 p-8">
+    <GlassSurface className="flex-1 items-center justify-center gap-3 p-8">
       <Text className="text-5xl">{icon}</Text>
       <Text className="text-white font-semibold text-lg text-center">{title}</Text>
       {subtitle && (
         <Text className="text-slate-400 text-sm text-center">{subtitle}</Text>
       )}
-    </View>
+    </GlassSurface>
   );
 }
 
@@ -259,7 +263,7 @@ interface SectionHeaderProps {
 
 export function SectionHeader({ title, subtitle, action }: SectionHeaderProps) {
   return (
-    <View className="flex-row items-center justify-between px-4 py-3">
+    <View className="flex-row items-center justify-between px-4 py-3 rounded-xl border border-white/10 bg-white/5">
       <View>
         <Text className="text-white font-bold text-lg">{title}</Text>
         {subtitle && (

@@ -5,17 +5,26 @@
 html,
 body {
   min-height: 100%;
-}
-
-body {
-  background: #020617;
-  color: #e2e8f0;
+  background-color: #eef1f8;
+  color: #1e2040;
 }
 
 * {
-  border-color: rgb(51 65 85 / 1);
+  border-color: rgb(226 232 240 / 0.8);
 }
 
 ::selection {
-  background: rgb(245 158 11 / 0.35);
+  background: rgb(79 110 247 / 0.2);
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 9999px;
 }

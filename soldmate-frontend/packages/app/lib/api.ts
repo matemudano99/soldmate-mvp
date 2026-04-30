@@ -9,7 +9,7 @@
 // ─── URL del backend ────────────────────────────────────────────────────────
 // En desarrollo apunta a tu máquina local.
 // En producción cambia esto por tu URL de Render / Railway / etc.
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8081";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:28080";
 
 // ─── Tipos que coinciden con los DTOs del backend ───────────────────────────
 
@@ -29,6 +29,15 @@ export interface ProductResponse {
   category: string | null;
   vatRate: number;
   lowStock: boolean; // el backend nos dice si está por debajo del mínimo
+}
+
+export interface ProductInput {
+  name: string;
+  currentStock: number;
+  minStock: number;
+  unit: "KG" | "L" | "UNIT" | "BOX";
+  category?: string | null;
+  vatRate?: number | null;
 }
 
 export interface IncidentResponse {
@@ -134,6 +143,30 @@ export const inventoryApi = {
     );
     return handleResponse<ProductResponse>(res);
   },
+
+  create: async (token: string, data: ProductInput): Promise<ProductResponse> => {
+    const res = await authFetch("/api/v1/inventory", token, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+    return handleResponse<ProductResponse>(res);
+  },
+
+  update: async (token: string, productId: number, data: ProductInput): Promise<ProductResponse> => {
+    const res = await authFetch(`/api/v1/inventory/${productId}`, token, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+    return handleResponse<ProductResponse>(res);
+  },
+
+  remove: async (token: string, productId: number): Promise<void> => {
+    const res = await authFetch(`/api/v1/inventory/${productId}`, token, { method: "DELETE" });
+    if (!res.ok && res.status !== 204) {
+      const text = await res.text();
+      throw new Error(text || `Error ${res.status}`);
+    }
+  },
 };
 
 // ─── Incidencias ─────────────────────────────────────────────────────────────
@@ -185,5 +218,25 @@ export const incidentsApi = {
       body: formData,
     });
     return handleResponse<IncidentResponse>(res);
+  },
+
+  update: async (
+    token: string,
+    incidentId: number,
+    data: { title: string; description: string; priority: string }
+  ): Promise<IncidentResponse> => {
+    const res = await authFetch(`/api/v1/incidents/${incidentId}`, token, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+    return handleResponse<IncidentResponse>(res);
+  },
+
+  remove: async (token: string, incidentId: number): Promise<void> => {
+    const res = await authFetch(`/api/v1/incidents/${incidentId}`, token, { method: "DELETE" });
+    if (!res.ok && res.status !== 204) {
+      const text = await res.text();
+      throw new Error(text || `Error ${res.status}`);
+    }
   },
 };

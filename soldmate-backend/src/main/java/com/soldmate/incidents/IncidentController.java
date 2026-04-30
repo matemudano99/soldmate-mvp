@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -88,6 +89,12 @@ public class IncidentController {
 
     public record UpdateStatusRequest(
         @NotNull Incident.Status status
+    ) {}
+
+    public record UpdateIncidentRequest(
+        @NotBlank String title,
+        String description,
+        @NotNull Incident.Priority priority
     ) {}
 
     // ─── Endpoints ───────────────────────────────────────────────────────────
@@ -218,6 +225,42 @@ public class IncidentController {
         try {
             Incident updated = incidentService.updateStatus(companyId, id, req.status());
             return ResponseEntity.ok(IncidentResponse.from(updated));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<IncidentResponse> updateIncident(
+        @RequestHeader("Authorization") String authHeader,
+        @PathVariable Long id,
+        @RequestBody UpdateIncidentRequest req
+    ) {
+        Long companyId = extractCompanyId(authHeader);
+        try {
+            Incident updated = incidentService.updateIncident(
+                companyId,
+                id,
+                req.title(),
+                req.description(),
+                req.priority()
+            );
+            return ResponseEntity.ok(IncidentResponse.from(updated));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('OWNER')")
+    public ResponseEntity<Void> deleteIncident(
+        @RequestHeader("Authorization") String authHeader,
+        @PathVariable Long id
+    ) {
+        Long companyId = extractCompanyId(authHeader);
+        try {
+            incidentService.deleteIncident(companyId, id);
+            return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }

@@ -147,6 +147,24 @@ public class IncidentService {
         return incidentRepository.save(incident);
     }
 
+    public Incident updateIncident(Long companyId, Long incidentId,
+                                   String title, String description,
+                                   Incident.Priority priority) {
+        Incident incident = incidentRepository.findByIdAndCompanyId(incidentId, companyId)
+            .orElseThrow(() -> new RuntimeException("Incidencia no encontrada"));
+
+        incident.setTitle(title);
+        incident.setDescription(description);
+        incident.setPriority(priority);
+        return incidentRepository.save(incident);
+    }
+
+    public void deleteIncident(Long companyId, Long incidentId) {
+        Incident incident = incidentRepository.findByIdAndCompanyId(incidentId, companyId)
+            .orElseThrow(() -> new RuntimeException("Incidencia no encontrada"));
+        incidentRepository.delete(incident);
+    }
+
     // ─── Supabase Storage ────────────────────────────────────────────────────
 
     /**

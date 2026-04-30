@@ -14,7 +14,7 @@ import {
 import { useRouter } from "../lib/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  ArrowLeft, Plus, ChevronDown, AlertTriangle,
+  Plus, ChevronDown, AlertTriangle,
   Clock, CheckCircle2, Circle,
 } from "lucide-react-native";
 import { useAuthStore } from "../lib/store";
@@ -22,6 +22,8 @@ import { incidentsApi, type IncidentResponse } from "../lib/api";
 import {
   PriorityBadge, SkeletonLoader, ErrorState, EmptyState,
 } from "../components/ui";
+import { ModuleNavbar } from "../components/ModuleNavbar";
+import { MobileTopBar } from "../components/MobileTopBar";
 
 // ─── Tipos y constantes ───────────────────────────────────────────────────────
 
@@ -55,7 +57,7 @@ function useIncidents() {
 
   const statusMut = useMutation({
     mutationFn: ({ id, status }: { id: number; status: string }) =>
-      fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080"}/api/v1/incidents/${id}/status`, {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:28080"}/api/v1/incidents/${id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ status }),
@@ -217,16 +219,12 @@ export function IncidentsListScreen() {
     <View className="flex-1 bg-slate-950">
 
       {/* ── Header ── */}
-      <View className="flex-row items-center gap-3 px-4 pt-14 pb-4 border-b border-slate-800">
-        <TouchableOpacity onPress={() => router.back()} className="bg-slate-800 rounded-xl p-2.5">
-          <ArrowLeft size={20} color="#94a3b8" />
-        </TouchableOpacity>
-        <View className="flex-1">
-          <Text className="text-white font-bold text-xl">Incidencias</Text>
-          <Text className="text-slate-400 text-xs">
-            {counts.OPEN + counts.IN_PROGRESS} activas · {counts.CLOSED} cerradas
-          </Text>
-        </View>
+      <MobileTopBar
+        title="Incidencias"
+        subtitle={`${counts.OPEN + counts.IN_PROGRESS} activas · ${counts.CLOSED} cerradas`}
+        onBack={() => router.back()}
+      />
+      <View className="px-4 pt-2 pb-3 border-b border-slate-800 items-end">
         <TouchableOpacity
           onPress={() => router.push("/incidents/new")}
           className="bg-amber-500 rounded-xl p-2.5"
@@ -288,6 +286,7 @@ export function IncidentsListScreen() {
         <ScrollView
           className="flex-1"
           showsVerticalScrollIndicator={false}
+          contentContainerClassName="pb-28"
           refreshControl={
             <RefreshControl
               refreshing={query.isLoading}
@@ -318,6 +317,8 @@ export function IncidentsListScreen() {
           isLoading={statusMut.isPending}
         />
       )}
+
+      <ModuleNavbar active="incidents" />
     </View>
   );
 }

@@ -41,11 +41,13 @@ services:
   frontend:
     build:
       context: ./soldmate-frontend
+      args:
+        - NEXT_PUBLIC_API_URL=http://localhost:28080
     container_name: soldmate-frontend
     ports:
       - "23000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=http://soldmate-backend:8080
+      - NEXT_PUBLIC_API_URL=http://localhost:28080
     depends_on:
       - backend
     networks:
