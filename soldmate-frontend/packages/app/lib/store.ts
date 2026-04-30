@@ -31,6 +31,7 @@ interface AuthState {
   // Acciones (funciones que modifican el estado)
   login: (data: AuthResponse) => void;
   logout: () => void;
+  setProfile: (data: Pick<AuthResponse, "firstName" | "lastName">) => void;
   toggleEditMode: () => void;
   setEditMode: (value: boolean) => void;
 }
@@ -97,6 +98,11 @@ export const useAuthStore = create<AuthState>()(
       editMode: false,
     });
   },
+  setProfile: (data) =>
+    set({
+      firstName: data.firstName ?? null,
+      lastName: data.lastName ?? null,
+    }),
   toggleEditMode: () =>
     set((s) => ({
       editMode: !s.editMode,

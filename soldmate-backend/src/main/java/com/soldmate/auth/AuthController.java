@@ -62,6 +62,11 @@ public class AuthController {
         @NotBlank String password
     ) {}
 
+    public record UpdateProfileRequest(
+        @NotBlank String firstName,
+        @NotBlank String lastName
+    ) {}
+
     public record AuthResponse(
         String token,
         String email,
@@ -151,6 +156,61 @@ public class AuthController {
             new AuthResponse(token, user.getEmail(), user.getRole().name(),
                              company.getSubscriptionTier().name(), company.getId(),
                              user.getFirstName(), user.getLastName())
+        );
+    }
+
+    // ─── GET /api/v1/auth/me ─────────────────────────────────────────────────
+
+    @GetMapping("/me")
+    public ResponseEntity<?> me(@RequestHeader("Authorization") String authHeader) {
+        String email = jwtUtil.extractEmail(authHeader.substring(7));
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado");
+        }
+
+        Company company = user.getCompany();
+        return ResponseEntity.ok(
+            new AuthResponse(
+                authHeader.substring(7),
+                user.getEmail(),
+                user.getRole().name(),
+                company.getSubscriptionTier().name(),
+                company.getId(),
+                user.getFirstName(),
+                user.getLastName()
+            )
+        );
+    }
+
+    // ─── PUT /api/v1/auth/profile ────────────────────────────────────────────
+
+    @PutMapping("/profile")
+    public ResponseEntity<?> updateProfile(
+        @RequestHeader("Authorization") String authHeader,
+        @Valid @RequestBody UpdateProfileRequest req
+    ) {
+        String email = jwtUtil.extractEmail(authHeader.substring(7));
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado");
+        }
+
+        user.setFirstName(req.firstName().trim());
+        user.setLastName(req.lastName().trim());
+        userRepository.save(user);
+
+        Company company = user.getCompany();
+        return ResponseEntity.ok(
+            new AuthResponse(
+                authHeader.substring(7),
+                user.getEmail(),
+                user.getRole().name(),
+                company.getSubscriptionTier().name(),
+                company.getId(),
+                user.getFirstName(),
+                user.getLastName()
+            )
         );
     }
 }

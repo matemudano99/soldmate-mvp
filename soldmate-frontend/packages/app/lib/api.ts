@@ -162,6 +162,22 @@ export const authApi = {
     });
     return handleResponse<AuthResponse>(res);
   },
+
+  me: async (token: string): Promise<AuthResponse> => {
+    const res = await authFetch("/api/v1/auth/me", token);
+    return handleResponse<AuthResponse>(res);
+  },
+
+  updateProfile: async (
+    token: string,
+    data: { firstName: string; lastName: string }
+  ): Promise<AuthResponse> => {
+    const res = await authFetch("/api/v1/auth/profile", token, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+    return handleResponse<AuthResponse>(res);
+  },
 };
 
 // ─── Inventario ──────────────────────────────────────────────────────────────
